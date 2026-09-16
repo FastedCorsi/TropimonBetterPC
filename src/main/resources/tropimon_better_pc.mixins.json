@@ -1,0 +1,21 @@
+{
+  "required": true,
+  "package": "fr.tropimon.betterpc.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "client": [
+    "OpenPcMixin",
+    "ClosePcMixin",
+    "ClientPcMixin",
+    "ClientPartyMixin",
+    "BoxSnapshotMixin",
+    "PartyReadyMixin",
+    "StorageManagerMixin",
+    "PcMovementMixin",
+    "PokemonUpdateMixin",
+    "ScreenReturnMixin",
+    "MarkTextAccessor"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

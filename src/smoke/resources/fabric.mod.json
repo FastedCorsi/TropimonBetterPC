@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "id": "better_pc_smoke",
+  "version": "1.0.0",
+  "authors": ["By FastedCorsi"],
+  "environment": "client",
+  "mixins": ["betterpc_smoke.mixins.json"],
+  "entrypoints": { "client": ["fr.tropimon.betterpc.BetterPcSmoke"] },
+  "depends": { "tropimon_better_pc": "*" }
+}

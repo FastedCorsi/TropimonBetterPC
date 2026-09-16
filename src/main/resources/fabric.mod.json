@@ -1,0 +1,20 @@
+{
+  "schemaVersion": 1,
+  "id": "tropimon_better_pc",
+  "version": "${version}",
+  "name": "Tropimon Better PC",
+  "description": "Un PC client avec filtres, fiches détaillées et sélection multiple.",
+  "authors": ["By FastedCorsi"],
+  "license": "All-Rights-Reserved",
+  "environment": "client",
+  "entrypoints": { "client": ["fr.tropimon.betterpc.BetterPcClient"] },
+  "mixins": ["tropimon_better_pc.mixins.json"],
+  "depends": {
+    "fabricloader": ">=0.17.2",
+    "minecraft": "1.21.1",
+    "java": ">=21",
+    "fabric-api": "*",
+    "fabric-language-kotlin": "*",
+    "cobblemon": ">=1.7.2"
+  }
+}
