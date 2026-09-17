@@ -263,7 +263,7 @@ public final class BetterPcSmoke implements ClientModInitializer {
                 screen.loadFilters(
                     new PcPreferences.Filters(
                         "", "99", "100", "100", "", false, 0, 0, "", "", "modest", "", 6, false, 0,
-                        ""));
+                        "", 0));
                 check(
                     screen.visible.size() == 16,
                     "obsolete IV percentage and removed nature filter ignored in saved searches");
@@ -297,6 +297,7 @@ public final class BetterPcSmoke implements ClientModInitializer {
                     !pikachu.pokemon().heldItemNoCopy$common().isEmpty(),
                     "held item synchronized for preview");
                 verifyFilters(client);
+                verifySizes();
                 verifyCaptureAndAbility(client);
                 verifyTags();
                 verifyReleaseProtections();
@@ -1048,6 +1049,55 @@ public final class BetterPcSmoke implements ClientModInitializer {
         screen.ability.equals("lightningrod") && screen.abilitySearch == null,
         "ability suggestion supports mouse selection and internal English IDs");
     click(80, 770);
+  }
+
+  private void verifySizes() throws Exception {
+    check(PcSize.supported(), "Cobblemon size API detected");
+    var xs = PokemonProperties.Companion.parse("pikachu").create();
+    var xl = PokemonProperties.Companion.parse("eevee").create();
+    var alpha = PokemonProperties.Companion.parse("cubone").create();
+    xs.setScaleModifier(0.05F);
+    xl.setScaleModifier(10F);
+    alpha.setAlpha(true);
+    check(PcSize.category(xs) == PcSize.XS, "official category identifies XS Pokemon");
+    check(PcSize.category(xl) == PcSize.XL, "official category identifies XL Pokemon");
+    check(
+        PcSize.category(alpha) == PcSize.ALPHA,
+        "Alpha replaces its intrinsic size category in the filter");
+
+    screen.all.add(PcPokemon.of(xs, 2, 20));
+    screen.all.add(PcPokemon.of(xl, 2, 21));
+    screen.all.add(PcPokemon.of(alpha, 2, 22));
+    screen.size = PcSize.XS;
+    screen.applyFilters();
+    check(
+        screen.visible.stream().anyMatch(entry -> entry.pokemon().getUuid().equals(xs.getUuid()))
+            && screen.visible.stream().noneMatch(entry -> entry.pokemon().getUuid().equals(xl.getUuid()))
+            && screen.visible.stream().noneMatch(entry -> entry.pokemon().getUuid().equals(alpha.getUuid())),
+        "XS filter excludes XL and Alpha Pokemon");
+    screen.size = PcSize.M;
+    screen.applyFilters();
+    check(
+        screen.visible.stream().noneMatch(entry -> entry.pokemon().getUuid().equals(alpha.getUuid())),
+        "Alpha is not also exposed as medium size");
+
+    screen.size = PcSize.ALL;
+    screen.rebuild();
+    click(500, 666);
+    check(screen.menu != null && screen.menu.entries.size() == 7, "size menu exposes five sizes and Alpha");
+    click(screen.menu.x + 10, screen.menu.y + 6 * 24 + 10);
+    check(screen.size == PcSize.ALPHA, "size menu selects Alpha");
+    screen.prefs.putPreset("Size test", screen.snapshot());
+    screen.prefs.save();
+    var reloaded =
+        PcPreferences.load((java.nio.file.Path) field(screen.prefs, "file"))
+            .presets
+            .get("Size test");
+    check(reloaded != null && reloaded.size() == PcSize.ALPHA, "saved search keeps size filter");
+    var reopened = new BetterPcScreen(session.original);
+    check(reopened.size == PcSize.ALPHA, "last size filter survives reconnect");
+    screen.prefs.deletePreset("Size test");
+    screen.loadFilters(PcPreferences.Filters.empty());
   }
 
   private void verifySpecies() throws Exception {

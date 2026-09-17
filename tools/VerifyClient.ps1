@@ -23,7 +23,14 @@ Get-ChildItem -LiteralPath $mods -Filter 'tropimon-better-pc-*.jar' -File |
     ForEach-Object { Remove-Item -LiteralPath $_.FullName }
 Copy-Item -LiteralPath $artifact -Destination $mods
 Copy-Item -LiteralPath (Join-Path $project "build/smoke-helper/tropimon-better-pc-$modVersion-smoke.jar") -Destination $mods
-$patterns = @('Cobblemon-fabric-1.7.2+1.21.1.jar', 'fabric-api-0.116.6+1.21.1.jar', 'fabric-language-kotlin-*.jar')
+$activeCobblemon = @(Get-ChildItem (Join-Path $launcher 'mods') -Filter 'Cobblemon-fabric-*.jar' -File)
+if ($activeCobblemon.Count -ne 1) {
+    throw "La vérification exige exactement un JAR Cobblemon actif dans l'instance."
+}
+Get-ChildItem -LiteralPath $mods -Filter 'Cobblemon-fabric-*.jar' -File |
+    ForEach-Object { Remove-Item -LiteralPath $_.FullName }
+Copy-Item -LiteralPath $activeCobblemon[0].FullName -Destination $mods
+$patterns = @('fabric-api-0.116.6+1.21.1.jar', 'fabric-language-kotlin-*.jar')
 if ($Mode -eq 'integrations') { $patterns += @('TropimonTeamBuilder-*.jar', 'TropimonCatchPreview-*.jar') }
 foreach ($pattern in $patterns) {
     Get-ChildItem (Join-Path $launcher 'mods') -Filter $pattern |

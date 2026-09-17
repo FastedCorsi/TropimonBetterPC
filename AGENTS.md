@@ -36,6 +36,13 @@ Cette règle demandée par l'utilisateur s'applique à toute création, correcti
 - Le JAR partageable ne contient ni chemin personnel, configuration locale, secret, donnée privée ni outil d'installation spécifique à la machine. Appliquer les contrôles de confidentialité aux deux JAR et aux éventuels fichiers qui les accompagnent. Conserver l'attribution « By FastedCorsi » et les crédits tiers.
 - Dans la livraison, indiquer les deux JAR et leur version, les contrôles effectués et l'état réel de l'installation locale : préparée, en attente de fermeture ou installée après vérification. Ne pas annoncer une installation réussie parce qu'un script a seulement été lancé.
 
+## Compatibilité durable avec Cobblemon
+
+- Le mod reste compatible avec les mises à jour mineures de Cobblemon sans exiger une recompilation à chaque fois. Déclarer une version minimale réellement prise en charge, sans borne maximale mineure artificielle ; une rupture majeure ou une incompatibilité réelle peut justifier une borne documentée.
+- Compiler et tester chaque livraison contre le JAR Cobblemon actuellement installé et, lorsque le mod appelle directement son API, contre la version minimale annoncée. Utiliser l'API commune ou un petit adaptateur local pour les écarts réels ; ne pas dépendre des classes internes d'un autre mod Tropimon.
+- Le build refuse une ancienne borne de métadonnées et sélectionne automatiquement l'unique JAR Cobblemon actif, avec une option explicite pour la matrice de compatibilité. Vérifier la dépendance dans les deux JAR finaux.
+- Le mod conserve son auto-update autonome : dépôt officiel propre, empreinte vérifiée et remplacement différé après arrêt de Minecraft. Il complète la compatibilité générique et ne la remplace pas.
+
 ## Code simple, lisible et efficace
 
 - Préserver strictement la logique, les fonctionnalités et les protections. Chercher les gains utiles de performance, mémoire et poids sans rendre le code difficile à comprendre.

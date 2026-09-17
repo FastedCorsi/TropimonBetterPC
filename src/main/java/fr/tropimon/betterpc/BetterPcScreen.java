@@ -53,7 +53,7 @@ public class BetterPcScreen extends Screen {
   final Set<UUID> selected = new LinkedHashSet<>();
   final Map<UUID, PcPortrait> portraits = new HashMap<>();
   final PcTools tools = new PcTools(this);
-  private PcButton compare, speciesButton, tagEditor;
+  private PcButton compare, speciesButton, sizeButton, tagEditor;
   PcButton deleteSearch;
   final PcPortrait dragPortrait = new PcPortrait();
   private final List<PcButton> buttons = new ArrayList<>();
@@ -63,7 +63,7 @@ public class BetterPcScreen extends Screen {
   PcSession.Place focusedPlace, moveSource, pressedSource;
   private int pressX, pressY;
   boolean dragging, multiple, reverse, keepLink, closed, savingPreset, days, favoritesOnly;
-  int tag, shiny, gender, perfect, box = -1, sort, page, ticks, usedBoxes, capacity;
+  int tag, shiny, gender, perfect, size, box = -1, sort, page, ticks, usedBoxes, capacity;
   String searchText = "", minText = "", maxText = "", ageText = "";
   String type = "", ability = "", nature = "", item = "", species = "";
   PcAbilitySearch abilitySearch;
@@ -119,7 +119,8 @@ public class BetterPcScreen extends Screen {
         perfect,
         favoritesOnly,
         tag,
-        species);
+        species,
+        size);
   }
 
   void loadFilters(PcPreferences.Filters f) {
@@ -144,6 +145,7 @@ public class BetterPcScreen extends Screen {
     perfect = 0;
     favoritesOnly = f.favoritesOnly();
     tag = Math.clamp(f.tag(), -1, 15);
+    size = PcSize.supported() ? Math.clamp(f.size(), PcSize.ALL, PcSize.ALPHA) : PcSize.ALL;
     box = -1;
   }
 
@@ -207,6 +209,7 @@ public class BetterPcScreen extends Screen {
     add.accent = true;
     nativePc = button(894, 24, 164, PcLang.tr("pc_classique_options"), this::openNative);
     speciesButton = button(40, 710, 200, filterMenus.speciesLabel(), filterMenus::speciesMenu);
+    sizeButton = button(460, 658, 200, filterMenus.sizeLabel(), filterMenus::sizeMenu);
     compare =
         button(670, 736, 200, PcLang.tr("tools_compare"), () -> tools.open(PcTools.Dialog.COMPARE));
     if (PcTeamBuilder.available())
@@ -421,6 +424,8 @@ public class BetterPcScreen extends Screen {
     compare.active = available && selected.size() == 2;
     compare.setMessage(Text.literal(PcLang.tr("tools_compare") + " " + selected.size() + " / 2"));
     speciesButton.accent = !species.isEmpty();
+    sizeButton.accent = size != PcSize.ALL;
+    sizeButton.active = available && PcSize.supported();
     add.active = available && focused && !multiple;
     multi.setMessage(
         Text.literal(

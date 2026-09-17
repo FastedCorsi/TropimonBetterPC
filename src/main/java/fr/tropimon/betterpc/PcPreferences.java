@@ -22,13 +22,15 @@ final class PcPreferences {
       int perfect,
       boolean favoritesOnly,
       int tag,
-      String species) {
+      String species,
+      int size) {
     Filters {
       species = species == null ? "" : species;
     }
 
     static Filters empty() {
-      return new Filters("", "", "", "", "", false, 0, 0, "", "", "", "", 0, false, 0, "");
+      return new Filters(
+          "", "", "", "", "", false, 0, 0, "", "", "", "", 0, false, 0, "", 0);
     }
   }
 
@@ -173,7 +175,9 @@ final class PcPreferences {
         && f.perfect() >= 0
         && f.perfect() <= 6
         && f.tag() >= -1
-        && f.tag() <= 15;
+        && f.tag() <= 15
+        && f.size() >= PcSize.ALL
+        && f.size() <= PcSize.ALPHA;
   }
 
   void rememberFilters(Filters filters, int sort, boolean reverse) {

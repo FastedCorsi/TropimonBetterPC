@@ -159,6 +159,14 @@
   "tropimon_better_pc.drop_box": "Déposer dans une boîte ▾",
   "tropimon_better_pc.species_legendary": "Espèce : légendaires",
   "tropimon_better_pc.species_duplicates": "Espèce : doublons",
+  "tropimon_better_pc.size_all": "Taille : toutes",
+  "tropimon_better_pc.size_xs": "Taille : XS",
+  "tropimon_better_pc.size_s": "Taille : S",
+  "tropimon_better_pc.size_m": "Taille : M",
+  "tropimon_better_pc.size_l": "Taille : L",
+  "tropimon_better_pc.size_xl": "Taille : XL",
+  "tropimon_better_pc.size_alpha": "Taille : Baron",
+  "tropimon_better_pc.size_unavailable": "Taille : indisponible",
   "tropimon_better_pc.no_saved_searches": "Aucune recherche enregistrée",
   "tropimon_better_pc.selected_count": " sélectionné(s)"
 }

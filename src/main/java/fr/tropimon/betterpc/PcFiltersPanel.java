@@ -19,19 +19,19 @@ final class PcFiltersPanel {
     screen.field(
         40,
         658,
-        410,
+        200,
         screen.searchText,
         PcLang.tr("nom_attaque"),
         value -> screen.searchText = value);
-    screen.field(460, 658, 96, screen.ageText, "X", value -> screen.ageText = value);
+    screen.field(250, 658, 96, screen.ageText, "X", value -> screen.ageText = value);
     screen.button(
-        564,
+        354,
         658,
         96,
         screen.days ? PcLang.tr("jours_626d0d") : PcLang.tr("heures_763c8a"),
         () ->
             choices(
-                564,
+                354,
                 682,
                 120,
                 List.of(PcLang.tr("heures"), PcLang.tr("jours")),
@@ -265,6 +265,41 @@ final class PcFiltersPanel {
               default -> "species_all";
             })
         + " ▾";
+  }
+
+  String sizeLabel() {
+    if (!PcSize.supported()) return PcLang.tr("size_unavailable");
+    return PcLang.tr(
+            switch (screen.size) {
+              case PcSize.XS -> "size_xs";
+              case PcSize.S -> "size_s";
+              case PcSize.M -> "size_m";
+              case PcSize.L -> "size_l";
+              case PcSize.XL -> "size_xl";
+              case PcSize.ALPHA -> "size_alpha";
+              default -> "size_all";
+            })
+        + " ▾";
+  }
+
+  void sizeMenu() {
+    if (!PcSize.supported()) return;
+    choices(
+        460,
+        542,
+        230,
+        List.of(
+            PcLang.tr("size_all"),
+            PcLang.tr("size_xs"),
+            PcLang.tr("size_s"),
+            PcLang.tr("size_m"),
+            PcLang.tr("size_l"),
+            PcLang.tr("size_xl"),
+            PcLang.tr("size_alpha")),
+        i -> {
+          screen.size = i;
+          screen.rebuild();
+        });
   }
 
   void speciesMenu() {

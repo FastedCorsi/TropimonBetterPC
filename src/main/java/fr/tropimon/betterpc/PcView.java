@@ -41,10 +41,10 @@ final class PcView {
         false);
     PcTextures.panel(c, 24, 626, 1072, 174);
     emphasis(c, f, PcLang.tr("recherche_filtres"), 40, 640, 200, 0xFF81E9D1, 1);
-    clipped(c, f, PcLang.tr("captures_depuis"), 460, 640, 200, 0xFFCDDEEC);
+    clipped(c, f, PcLang.tr("captures_depuis"), 250, 640, 200, 0xFFCDDEEC);
     if (s.confirmation == null && !s.savingPreset) {
-      PcTextures.input(c, 40, 658, 410, 21);
-      PcTextures.input(c, 460, 658, 96, 21);
+      PcTextures.input(c, 40, 658, 200, 21);
+      PcTextures.input(c, 250, 658, 96, 21);
     }
     text(c, f, s.selected.size() + PcLang.tr("selected_count"), GX, 604, 0xFF9CE9D8);
     Set<UUID> rendered = new HashSet<>();

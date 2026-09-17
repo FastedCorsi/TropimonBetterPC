@@ -33,7 +33,23 @@ class PcPreferencesTest {
     assertEquals(original, Files.readString(legacy));
     var filters =
         new PcPreferences.Filters(
-            "lugia", "", "", "", "", false, 0, 0, "", "", "", "", 0, false, 0, "@legendary");
+            "lugia",
+            "",
+            "",
+            "",
+            "",
+            false,
+            0,
+            0,
+            "",
+            "",
+            "",
+            "",
+            0,
+            false,
+            0,
+            "@legendary",
+            PcSize.ALL);
     restored.rememberFilters(filters, 3, true);
     Path second = root.resolve("legacy-b.json");
     var other = PcPreferences.load(second);
@@ -80,11 +96,13 @@ class PcPreferencesTest {
             0,
             true,
             8,
-            "@legendary");
+            "@legendary",
+            PcSize.ALPHA);
     prefs.rememberFilters(filters, 3, true);
     prefs.save();
     var restored = PcPreferences.load(file);
     assertEquals(filters, restored.lastFilters);
+    assertEquals(PcSize.ALPHA, restored.lastFilters.size());
     assertEquals(3, restored.lastSort);
     assertTrue(restored.lastReverse);
     assertTrue(restored.presets.isEmpty());

@@ -94,7 +94,8 @@ class PcTagsTest {
             0,
             false,
             4,
-            "cobblemon:charmander");
+            "cobblemon:charmander",
+            PcSize.XL);
     prefs.putPreset("Training", filter);
     assertEquals(filter, PcPreferences.load(file).presets.get("Training"));
     Files.writeString(file, Files.readString(file).replace(",\"tag\":4", ""));
@@ -102,6 +103,8 @@ class PcTagsTest {
     Files.writeString(
         file, Files.readString(file).replace(",\"species\":\"cobblemon:charmander\"", ""));
     assertEquals("", PcPreferences.load(file).presets.get("Training").species());
+    Files.writeString(file, Files.readString(file).replace(",\"size\":5", ""));
+    assertEquals(PcSize.ALL, PcPreferences.load(file).presets.get("Training").size());
   }
 
   @Test

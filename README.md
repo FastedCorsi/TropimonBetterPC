@@ -2,7 +2,7 @@
 
 By FastedCorsi
 
-Mod Fabric **client uniquement**, version **0.9.6**, pour **Minecraft 1.21.1 / Cobblemon 1.7.2**. Indépendant des autres mods Tropimon. Fabric API et Fabric Language Kotlin sont nécessaires.
+Mod Fabric **client uniquement**, version **0.9.8**, pour **Minecraft 1.21.1 / Cobblemon 1.7.2 ou ultérieur**. Indépendant des autres mods Tropimon. Fabric API et Fabric Language Kotlin sont nécessaires.
 
 L'équipe se trouve au-dessus des cartes, dans des emplacements de 44 unités de haut avec des portraits agrandis. Le titre ne contient plus de barre oblique et la croix de fermeture, décalée vers la droite, devient rouge au survol. Tous les filtres, la recherche et les actions de collection sont alignés dans le panneau inférieur : recherche, période et recherches enregistrées ; Type / Talent / Shiny / Sexe / Objet sur une même ligne ; espèce, favoris, tags, tri et protections ; actions de sélection ; puis Réinitialiser les filtres / Supprimer une recherche / Effacer la sélection côte à côte. Le champ de période est centré au repos. Les instructions Ctrl/Maj/cœur sont retirées ; les raccourcis restent fonctionnels. La grille gagne une colonne et affiche quinze Pokémon par page. Le boîtier extérieur utilise la partie centrale de `cobblemon:textures/gui/pc/pc_base.png`, agrandie par sections : les coins inclinés et les rails supérieur et inférieur conservent leurs proportions natives. Les panneaux utilisent le contour d’écran du PC, et les boutons et champs le bouton natif du PC. Les cartes et emplacements d’équipe conservent leur habillage Cobblemon coloré. Les textures et modèles sont référencés directement dans Cobblemon et respectent les packs de ressources actifs. Les ressources tierces restent la propriété de leurs auteurs et sous leurs licences.
 
@@ -17,6 +17,7 @@ Interagir normalement avec un PC Cobblemon ouvre Better PC. Les commandes de dé
 - Si TeamBuilder est installé, son bouton ouvre son écran depuis Better PC. Échap et le bouton de retour au PC ramènent à la même fenêtre Better PC avec ses filtres, sa page et sa sélection. La liaison avec le stockage et le blocage des déplacements sont conservés ; une fermeture serveur invalide ce retour. Les actions de stockage Better PC restent bloquées pendant une application d’équipe en arrière-plan. Cette intégration facultative est vérifiée avec TeamBuilder 0.59.10, sans dépendance obligatoire ni modification de cet autre mod.
 - Recherche dans toutes les boîtes : noms, types, talents, natures, attaques, objets, Poké Balls et aspects. Plusieurs mots cumulent les critères ; la recherche ignore les accents et la casse.
 - Menus déroulants : espèce, type, objet tenu (dont sans objet), shiny et sexe. Les boutons Nature et Toutes les boîtes sont retirés ; les anciennes recherches ne réactivent pas le filtre de nature. Période locale en heures ou jours. Les filtres de niveau, d'IV minimum en pourcentage et d'IV parfaits sont retirés, y compris lors du chargement des anciennes recherches. Une période numérique incorrecte ne sélectionne aucun Pokémon. Une période positive inférieure à une milliseconde reste restrictive. Les mises à jour individuelles envoyées par Cobblemon rafraîchissent aussi la recherche et le tri des IV, sans rouvrir le PC.
+- À partir de Cobblemon 1.8, **Taille** filtre selon les catégories officielles `XS`, `S`, `M`, `L` et `XL`, calculées par Cobblemon avec les limites synchronisées du serveur. Le même menu propose **Baron** en français et **Alpha** en anglais. Un Pokémon Baron/Alpha est traité comme la catégorie spéciale affichée par Cobblemon et n'apparaît pas aussi dans la taille intrinsèque M. Le filtre est conservé dans les recherches enregistrées et parmi les derniers critères utilisés. Sous Cobblemon 1.7.2, le bouton indique que la taille est indisponible et le reste du mod continue de fonctionner.
 - Tris : boîte/emplacement, nom, niveau, IV et détection récente, avec inversion de l'ordre.
 
 - Le mode daltonien est retiré. Les anciennes préférences correspondantes sont ignorées sans perdre favoris, tags, exclusions ou recherches.
@@ -64,12 +65,12 @@ Le rangement automatique ajouté en 0.5.0 est retiré. Les déplacements manuels
 
 `tools/Build.ps1 -Deliver` prépare deux copies de la même version :
 
-- `build/delivery/local/TropimonBetterPC-0.9.6+1.21.1-LOCAL.jar`, avec l'installateur externe.
-- `build/delivery/shareable/TropimonBetterPC-0.9.6+1.21.1.jar`, prêt à partager.
+- `build/delivery/local/TropimonBetterPC-0.9.8+1.21.1-LOCAL.jar`, avec l'installateur externe.
+- `build/delivery/shareable/TropimonBetterPC-0.9.8+1.21.1.jar`, prêt à partager.
 
 `tools/Build.ps1 -Deliver -Arm` arme l'installation locale différée. Le launcher peut rester ouvert. L'installateur attend l'arrêt du jeu, vérifie le JAR et la copie, et sauvegarde une ancienne version hors des mods chargés. Son état réel est écrit dans `install-status.json` et dans `install-status-<version>.json`. Si une mise à jour précédente attend encore le jeu, la nouvelle patiente derrière elle sans arrêter son processus ni remplacer un JAR utilisé. L’état propre à chaque version évite de confondre leurs attentes. Ne jamais installer les deux copies ensemble.
 
-Les chemins sont découverts via `TROPIMON_HOME` ou les emplacements portables du launcher. La dépendance de compilation peut aussi être fournie avec `-PcobblemonJar=...`. Aucune configuration Git globale, publication ou réécriture d'historique n'est effectuée.
+Les chemins sont découverts via `TROPIMON_HOME` ou les emplacements portables du launcher. La dépendance de compilation peut aussi être fournie avec `-PcobblemonJar=...`. Le build normal utilise l'unique JAR Cobblemon actif ; `-PofficialDependenciesOnly` vérifie la version minimale annoncée. Aucune configuration Git globale ni réécriture d'historique n'est effectuée.
 
 Le contrôle de confidentialité inspecte sources, ressources, constantes compilées et archives imbriquées. Les éventuels termes privés supplémentaires sont fournis par `BETTER_PC_PRIVATE_TERMS` dans l'environnement, jamais dans les sources. Le contrôle ne constitue pas une garantie d'anonymisation absolue et ne supprime pas les copies déjà diffusées.
 

@@ -270,6 +270,7 @@ record PcPokemon(Pokemon pokemon, int box, int slot, String search, double iv) {
           case "@any" -> !p.heldItemNoCopy$common().isEmpty();
           default -> filters.item().equals(itemId(p));
         }) return false;
+    if (!PcSize.matches(p, filters.size())) return false;
     int perfect = 0;
     for (int i = 0; i < 6; i++) if (stat(p, i, false) == 31) perfect++;
     return perfect >= filters.perfect();
