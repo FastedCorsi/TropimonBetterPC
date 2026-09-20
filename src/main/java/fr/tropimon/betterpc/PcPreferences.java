@@ -35,7 +35,8 @@ final class PcPreferences {
   }
 
   // Stable bit positions in local files; labels are localized only for display.
-  static final String[] TAG_KEYS = {"sale", "moveset", "ev_train", "pvp"};
+  static final String[] TAG_KEYS = {"sale", "moveset", "ev_train", "pvp", "raid"};
+  static final int ALL_TAGS = (1 << TAG_KEYS.length) - 1;
   private final Map<UUID, Integer> tags = new HashMap<>();
   final Set<UUID> favorites = new HashSet<>();
   final Map<String, Filters> presets = new LinkedHashMap<>();
@@ -72,7 +73,7 @@ final class PcPreferences {
       if (json.has("tags"))
         for (var entry : json.getAsJsonObject("tags").entrySet()) {
           int value = entry.getValue().getAsInt();
-          if (prefs.tags.size() >= 100_000 || value <= 0 || value > 15)
+          if (prefs.tags.size() >= 100_000 || value <= 0 || value > ALL_TAGS)
             throw new IllegalStateException("Invalid local tags");
           prefs.tags.put(UUID.fromString(entry.getKey()), value);
         }
@@ -175,7 +176,7 @@ final class PcPreferences {
         && f.perfect() >= 0
         && f.perfect() <= 6
         && f.tag() >= -1
-        && f.tag() <= 15
+        && f.tag() <= ALL_TAGS
         && f.size() >= PcSize.ALL
         && f.size() <= PcSize.ALPHA;
   }
@@ -201,7 +202,7 @@ final class PcPreferences {
   }
 
   boolean setTags(Collection<UUID> ids, int mask, boolean enabled) {
-    if (!available || mask <= 0 || mask > 15 || ids.stream().anyMatch(Objects::isNull))
+    if (!available || mask <= 0 || mask > ALL_TAGS || ids.stream().anyMatch(Objects::isNull))
       return false;
     Set<UUID> unique = new HashSet<>(ids);
     if (enabled

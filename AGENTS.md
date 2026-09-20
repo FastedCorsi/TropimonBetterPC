@@ -36,6 +36,14 @@ Cette règle demandée par l'utilisateur s'applique à toute création, correcti
 - Le JAR partageable ne contient ni chemin personnel, configuration locale, secret, donnée privée ni outil d'installation spécifique à la machine. Appliquer les contrôles de confidentialité aux deux JAR et aux éventuels fichiers qui les accompagnent. Conserver l'attribution « By FastedCorsi » et les crédits tiers.
 - Dans la livraison, indiquer les deux JAR et leur version, les contrôles effectués et l'état réel de l'installation locale : préparée, en attente de fermeture ou installée après vérification. Ne pas annoncer une installation réussie parce qu'un script a seulement été lancé.
 
+## Détection de l'instance active du launcher
+
+- Le dossier du programme du launcher et de son runtime ne détermine pas celui des données ou des mods. Ne jamais supposer qu'un sous-dossier mods existe à côté du programme.
+- Pour l'auto-update embarqué, détecter le JAR réellement chargé via l'origine du ModContainer Fabric, puis en dériver le dossier mods et l'instance concernée.
+- Pour les compilations et l'installateur local externe, détecter et vérifier le profil actif avant de sélectionner les dépendances ou de copier un JAR. Ne pas figer le nom du profil ni un chemin propre à une machine.
+- Le dossier mods historique à la racine des données peut être un miroir géré par le launcher. Une installation n'est réussie qu'après vérification du JAR et de son SHA-256 dans le dossier mods du profil actif.
+- Une information sur le déplacement du launcher ou une mise à jour de ces consignes ne déclenche aucune compilation ni installation.
+
 ## Compatibilité durable avec Cobblemon
 
 - Le mod reste compatible avec les mises à jour mineures de Cobblemon sans exiger une recompilation à chaque fois. Déclarer une version minimale réellement prise en charge, sans borne maximale mineure artificielle ; une rupture majeure ou une incompatibilité réelle peut justifier une borne documentée.
@@ -70,3 +78,14 @@ Cette règle demandée par l'utilisateur s'applique à toute création, correcti
 - La mise à jour accepte uniquement la Release officielle de ce dépôt, exige le SHA-256, vérifie l'identifiant et la version de fabric.mod.json, prépare le fichier hors du dossier mods, puis remplace l'ancien JAR seulement après l'arrêt de Minecraft. Elle ne force jamais l'arrêt du jeu ou du launcher et conserve une sauvegarde hors des mods chargés.
 - Une évolution de l'updater doit rester légère, asynchrone et sans travail répété par tick ou par frame.
 
+
+
+## Installation locale prise en charge par l’agent
+
+- Lors des prochaines livraisons Tropimon, l’agent réalise lui-même l’installation locale autorisée ; ne pas demander à l’utilisateur de recopier ou réimporter le JAR si l’opération peut être menée sûrement avec les outils disponibles.
+- Détecter le profil et la gestion des mods du launcher. Une copie dans `instance/mods` seule ne constitue pas une installation valide lorsque le launcher utilise `instance/mods-user` et `user-mods-tracked.json`.
+- Sur ce schéma vérifié, synchroniser la copie importée, la copie chargée et le suivi du seul mod livré. Préserver les autres mods, leurs désactivations et le manifeste officiel ; ne jamais désactiver le contrôle des mods non gérés ni assouplir une protection du launcher.
+- Réutiliser l’installateur local `InstallManagedLocalMod.ps1` lorsqu’il est disponible et en joindre une copie autonome à la livraison LOCAL. Remplacer ou adapter l’ancienne entrée d’installation avant de la lancer sur un profil géré ; un ancien script limité au dossier `mods` ne doit pas être utilisé tel quel. Aucun outil local n’est embarqué dans le JAR partageable, aucune dépendance entre mods n’est ajoutée.
+- Attendre l’arrêt du jeu concerné sans forcer le launcher ni Minecraft. Vérifier les SHA-256, l’identifiant et la version, empêcher doublons et retours de version, sauvegarder hors des dossiers chargés et refuser les cibles modifiées, verrouillées, redirigées ou ambiguës. Une évolution inconnue du format impose une nouvelle vérification, pas une modification forcée.
+- Vérifier les deux copies et l’enregistrement du launcher après installation ; indiquer séparément l’état sur disque et une éventuelle validation en jeu. Les auto-updaters doivent respecter ce stockage géré lorsqu’ils sont adaptés ; une règle ou un installateur local corrigé ne répare pas rétroactivement les JAR déjà distribués.
+- Ces consignes ne déclenchent pas à elles seules une compilation, une publication ni une modification des mods mis de côté. Tropimon Compagnon reste exclu tant que l’utilisateur demande de ne pas y toucher.

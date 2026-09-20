@@ -213,7 +213,8 @@ final class PcFiltersPanel {
     }
     entries.add(
         new PcMenu.Entry(
-            PcLang.tr("tags_clear") + " (" + ids.size() + ")", () -> changeTags(ids, 15, false)));
+            PcLang.tr("tags_clear") + " (" + ids.size() + ")",
+            () -> changeTags(ids, PcPreferences.ALL_TAGS, false)));
     screen.menu = new PcMenu(460, 760, 410, entries);
     screen.setFocused(null);
   }
@@ -262,6 +263,7 @@ final class PcFiltersPanel {
             switch (screen.species) {
               case "@duplicates" -> "species_duplicates";
               case "@legendary" -> "species_legendary";
+              case "@alpha" -> "species_alpha";
               default -> "species_all";
             })
         + " ▾";
@@ -310,9 +312,10 @@ final class PcFiltersPanel {
         List.of(
             PcLang.tr("species_all"),
             PcLang.tr("species_duplicates"),
-            PcLang.tr("species_legendary")),
+            PcLang.tr("species_legendary"),
+            PcLang.tr("species_alpha")),
         i -> {
-          screen.species = new String[] {"", "@duplicates", "@legendary"}[i];
+          screen.species = new String[] {"", "@duplicates", "@legendary", "@alpha"}[i];
           screen.rebuild();
         });
   }

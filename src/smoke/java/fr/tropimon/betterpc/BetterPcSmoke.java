@@ -638,6 +638,12 @@ public final class BetterPcSmoke implements ClientModInitializer {
                 click(300, 482);
                 check((screen.prefs.tags(id) & 1) == 0, "comparison can remove that tag");
                 click(400, 606);
+                click(300, 472 + 4 * 24 + 10);
+                check((screen.prefs.tags(id) & 16) != 0, "comparison can add Raid");
+                click(400, 606);
+                click(300, 472 + 5 * 24 + 10);
+                check(screen.prefs.tags(id) == 0, "comparison clear includes Raid");
+                click(400, 606);
                 ((net.minecraft.client.gui.screen.Screen) screen)
                     .keyPressed(org.lwjgl.glfw.GLFW.GLFW_KEY_ESCAPE, 0, 0);
                 check(screen.tools.modal(), "Escape closes tag menu before comparison");
@@ -836,15 +842,22 @@ public final class BetterPcSmoke implements ClientModInitializer {
     UUID first = screen.all.getFirst().pokemon().getUuid(),
         second = screen.all.get(1).pokemon().getUuid();
     click(64, 150);
-    for (int i = 0; i < 4; i++) {
+    for (int i = 0; i < PcPreferences.TAG_KEYS.length; i++) {
       click(500, 744);
       check(screen.menu != null, "tag editor opens for focused Pokemon");
       click(screen.menu.x + 10, screen.menu.y + i * 24 + 10);
       check((screen.prefs.tags(first) & (1 << i)) != 0, "tag added through menu: " + i);
     }
-    check(screen.prefs.tags(first) == 15, "all four tags coexist");
+    check(screen.prefs.tags(first) == 31, "all five tags coexist, including Raid");
     var settings = (java.nio.file.Path) field(screen.prefs, "file");
-    check(PcPreferences.load(settings).tags(first) == 15, "tags persist for reconnect");
+    check(PcPreferences.load(settings).tags(first) == 31, "tags persist for reconnect");
+    click(500, 718);
+    click(screen.menu.x + 10, screen.menu.y + 6 * 24 + 10);
+    check(screen.tag == 16 && screen.visible.size() == 1, "Raid menu filters tagged Pokemon");
+    var raidReopened = new BetterPcScreen(session.original);
+    check(raidReopened.tag == 16, "Raid filter survives reopening the PC");
+    screen.loadFilters(PcPreferences.Filters.empty());
+    click(64, 150);
     screen.selected.add(second);
     click(500, 744);
     click(screen.menu.x + 10, screen.menu.y + 10);
@@ -854,7 +867,7 @@ public final class BetterPcSmoke implements ClientModInitializer {
     click(500, 744);
     click(screen.menu.x + 10, screen.menu.y + 10);
     check(
-        screen.prefs.tags(first) == 14 && screen.prefs.tags(second) == 0,
+        screen.prefs.tags(first) == 30 && screen.prefs.tags(second) == 0,
         "removing one tag from selection preserves other tags");
     screen.prefs.setTags(List.of(first), 1, true);
     click(500, 718);
@@ -881,7 +894,7 @@ public final class BetterPcSmoke implements ClientModInitializer {
     click(screen.menu.x + 10, screen.menu.y + 10);
     click(64, 150);
     click(500, 744);
-    click(screen.menu.x + 10, screen.menu.y + 4 * 24 + 10);
+    click(screen.menu.x + 10, screen.menu.y + PcPreferences.TAG_KEYS.length * 24 + 10);
     check(
         screen.prefs.tags(first) == 0
             && screen.visible.isEmpty()
@@ -895,7 +908,7 @@ public final class BetterPcSmoke implements ClientModInitializer {
         screen.tag == -1 && screen.visible.size() == 16,
         "untagged filter finds all remaining Pokemon");
     click(80, 770);
-    screen.prefs.setTags(List.of(first), 15, true);
+    screen.prefs.setTags(List.of(first), PcPreferences.ALL_TAGS, true);
   }
 
   private void verifyReleaseProtections() throws Exception {
@@ -1055,7 +1068,8 @@ public final class BetterPcSmoke implements ClientModInitializer {
     check(PcSize.supported(), "Cobblemon size API detected");
     var xs = PokemonProperties.Companion.parse("pikachu").create();
     var xl = PokemonProperties.Companion.parse("eevee").create();
-    var alpha = PokemonProperties.Companion.parse("cubone").create();
+    // Keep the Alpha fixture in the actual client store so menu rebuilds retain it.
+    var alpha = session.pc.getBoxes().getFirst().getSlots().getFirst();
     xs.setScaleModifier(0.05F);
     xl.setScaleModifier(10F);
     alpha.setAlpha(true);
@@ -1067,7 +1081,6 @@ public final class BetterPcSmoke implements ClientModInitializer {
 
     screen.all.add(PcPokemon.of(xs, 2, 20));
     screen.all.add(PcPokemon.of(xl, 2, 21));
-    screen.all.add(PcPokemon.of(alpha, 2, 22));
     screen.size = PcSize.XS;
     screen.applyFilters();
     check(
@@ -1096,6 +1109,33 @@ public final class BetterPcSmoke implements ClientModInitializer {
     check(reloaded != null && reloaded.size() == PcSize.ALPHA, "saved search keeps size filter");
     var reopened = new BetterPcScreen(session.original);
     check(reopened.size == PcSize.ALPHA, "last size filter survives reconnect");
+    screen.size = PcSize.ALL;
+    screen.rebuild();
+    click(80, 718);
+    check(screen.menu.entries.size() == 4, "Species menu includes Alpha");
+    click(screen.menu.x + 10, screen.menu.y + 3 * 24 + 10);
+    check(screen.species.equals("@alpha")
+            && screen.visible.size() == 1
+            && screen.visible.getFirst().pokemon().getUuid().equals(alpha.getUuid()),
+        "Species Alpha excludes ordinary Pokemon regardless of size");
+    screen.prefs.putPreset("Alpha test", screen.snapshot());
+    var alphaSaved = PcPreferences.load((Path) field(screen.prefs, "file"));
+    screen.loadFilters(alphaSaved.presets.get("Alpha test"));
+    check(screen.species.equals("@alpha") && screen.visible.size() == 1,
+        "saved Alpha search restores actual filtered results");
+    check(new BetterPcScreen(session.original).species.equals("@alpha"),
+        "Alpha species filter survives reopening");
+    screen.tag = 16;
+    screen.applyFilters();
+    check(screen.visible.isEmpty(), "Alpha combines with Raid membership");
+    screen.prefs.setTags(List.of(alpha.getUuid()), 16, true);
+    screen.applyFilters();
+    check(screen.visible.size() == 1, "tagged Alpha matches both criteria");
+    alpha.setAlpha(false);
+    screen.applyFilters();
+    check(screen.visible.isEmpty(), "Alpha filter follows the actual Cobblemon flag");
+    screen.prefs.setTags(List.of(alpha.getUuid()), 16, false);
+    screen.prefs.deletePreset("Alpha test");
     screen.prefs.deletePreset("Size test");
     screen.loadFilters(PcPreferences.Filters.empty());
   }

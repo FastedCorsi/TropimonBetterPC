@@ -80,7 +80,7 @@ final class PcTools {
               (checked ? "[x] " : "[ ] ") + PcLang.tr("tag_" + PcPreferences.TAG_KEYS[i]),
               () -> setTag(id, mask, !checked)));
     }
-    entries.add(new PcMenu.Entry(PcLang.tr("tags_clear"), () -> setTag(id, 15, false)));
+    entries.add(new PcMenu.Entry(PcLang.tr("tags_clear"), () -> setTag(id, PcPreferences.ALL_TAGS, false)));
     tagMenu = new PcMenu(Math.min(x, 544), 472, 310, entries);
   }
 

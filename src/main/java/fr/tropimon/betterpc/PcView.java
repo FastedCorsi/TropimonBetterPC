@@ -309,7 +309,7 @@ final class PcView {
             tagX,
             y + 20,
             tagWidth + 1,
-            new int[] {0xFFFFD84D, 0xFF81E1FF, 0xFFFFB45C, 0xFFDBB9FF}[i],
+            new int[] {0xFFFFD84D, 0xFF81E1FF, 0xFFFFB45C, 0xFFDBB9FF, 0xFFFF9292}[i],
             1,
             false);
         tagX += tagWidth + 8;

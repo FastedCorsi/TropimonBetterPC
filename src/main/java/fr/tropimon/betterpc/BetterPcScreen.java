@@ -140,11 +140,11 @@ public class BetterPcScreen extends Screen {
     type = f.type();
     ability = f.ability();
     nature = "";
-    species = Set.of("@duplicates", "@legendary").contains(f.species()) ? f.species() : "";
+    species = Set.of("@duplicates", "@legendary", "@alpha").contains(f.species()) ? f.species() : "";
     item = f.item();
     perfect = 0;
     favoritesOnly = f.favoritesOnly();
-    tag = Math.clamp(f.tag(), -1, 15);
+    tag = Math.clamp(f.tag(), -1, PcPreferences.ALL_TAGS);
     size = PcSize.supported() ? Math.clamp(f.size(), PcSize.ALL, PcSize.ALPHA) : PcSize.ALL;
     box = -1;
   }

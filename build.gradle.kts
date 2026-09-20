@@ -1,4 +1,6 @@
 import java.security.MessageDigest
+import java.util.zip.ZipFile
+import groovy.json.JsonSlurper
 
 plugins {
     id("fabric-loom") version "1.15.5"
@@ -17,14 +19,32 @@ repositories {
 val launcherHome = providers.environmentVariable("TROPIMON_HOME").orNull?.let(::file)
     ?: providers.environmentVariable("APPDATA").orNull?.let { file(it).resolve(".tropimon") }
     ?: file(System.getProperty("user.home")).resolve(".tropimon")
-val localMods = launcherHome.resolve("mods")
 val officialDependenciesOnly = providers.gradleProperty("officialDependenciesOnly").isPresent
+val launcherInstance = providers.gradleProperty("launcherInstance").orNull?.let(::file) ?: run {
+    val profiles = launcherHome.resolve("profiles")
+    if (profiles.isDirectory) {
+        val instances = profiles.listFiles().orEmpty().map { it.resolve("instance") }
+            .filter { it.resolve("mods").isDirectory }
+        if (instances.size != 1) throw GradleException("Profil ambigu : définir -PlauncherInstance=<instance>.")
+        instances.single()
+    } else launcherHome
+}
+val localMods = launcherInstance.resolve("mods")
 val cobblemonJar = if (officialDependenciesOnly) null else providers.gradleProperty("cobblemonJar").orNull?.let(::file) ?: run {
     val installed = localMods.listFiles()
-        ?.filter { it.isFile && it.name.matches(Regex("Cobblemon-fabric-.+\\.jar", RegexOption.IGNORE_CASE)) }
+        ?.filter { it.isFile && it.extension.equals("jar", ignoreCase = true) }
+        ?.filter { jar ->
+            ZipFile(jar).use { zip ->
+                zip.getEntry("fabric.mod.json")?.let { entry ->
+                    zip.getInputStream(entry).use { input ->
+                        (JsonSlurper().parse(input) as? Map<*, *>)?.get("id") == "cobblemon"
+                    }
+                } ?: false
+            }
+        }
         .orEmpty()
-    if (installed.size > 1) {
-        throw GradleException("Plusieurs JAR Cobblemon détectés ; définir -PcobblemonJar=<jar>.")
+    if (localMods.isDirectory && installed.size != 1) {
+        throw GradleException("Le profil doit contenir un unique JAR Cobblemon ; définir -PcobblemonJar=<jar> si nécessaire.")
     }
     installed.singleOrNull()
 }
@@ -56,7 +76,7 @@ tasks.withType<JavaCompile>().configureEach {
 }
 tasks.test {
     useJUnitPlatform()
-    val bundledJava = localMods.parentFile.resolve("runtime/x64/jdk-21.0.6+7/bin/java.exe")
+    val bundledJava = launcherHome.resolve("runtime/x64/jdk-21.0.6+7/bin/java.exe")
     if (bundledJava.isFile) executable = bundledJava.absolutePath
 }
 val cobblemonMinimumVersion = property("cobblemon_min_version") as String
@@ -107,7 +127,10 @@ val prepareDelivery by tasks.registering {
         val localDir = layout.buildDirectory.dir("delivery/local").get().asFile.apply { mkdirs() }
         val shareDir = layout.buildDirectory.dir("delivery/shareable").get().asFile.apply { mkdirs() }
         source.copyTo(localDir.resolve("TropimonBetterPC-${project.version}+1.21.1-LOCAL.jar"), true)
-        file("tools/InstallWhenClosed.ps1").copyTo(localDir.resolve("InstallWhenClosed.ps1"), true)
+        val hash = MessageDigest.getInstance("SHA-256").digest(source.readBytes()).joinToString("") { "%02x".format(it) }
+        localDir.resolve("TropimonBetterPC-${project.version}+1.21.1-LOCAL.jar.sha256").writeText(hash + "\n")
+        shareDir.resolve("TropimonBetterPC-${project.version}+1.21.1.jar.sha256").writeText(hash + "\n")
+        file("tools/InstallManagedLocalMod.ps1").copyTo(localDir.resolve("InstallManagedLocalMod.ps1"), true)
         file("tools/ArmLocalUpdate.ps1").copyTo(localDir.resolve("ArmLocalUpdate.ps1"), true)
         source.copyTo(shareDir.resolve("TropimonBetterPC-${project.version}+1.21.1.jar"), true)
     }
@@ -190,6 +213,8 @@ val prepareReleaseDelivery = tasks.register("prepareReleaseDelivery") {
         copyAndHash(localDirectory.resolve("TropimonBetterPC-${project.version}+1.21.1-LOCAL.jar"))
         file("tools/install-local-deferred.ps1")
             .copyTo(localDirectory.resolve("install-local-deferred.ps1"), overwrite = true)
+        file("tools/InstallManagedLocalMod.ps1")
+            .copyTo(localDirectory.resolve("InstallManagedLocalMod.ps1"), overwrite = true)
     }
 }
 

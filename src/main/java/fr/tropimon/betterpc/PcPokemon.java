@@ -255,6 +255,7 @@ record PcPokemon(Pokemon pokemon, int box, int slot, String search, double iv) {
 
   boolean matchesAdvanced(PcPreferences.Filters filters, PcPreferences preferences) {
     if (filters.species().equals("@legendary") && !legendary(pokemon)) return false;
+    if (filters.species().equals("@alpha") && !PcSize.matches(pokemon, PcSize.ALPHA)) return false;
     Pokemon p = pokemon;
     if (!preferences.matchesTags(p.getUuid(), filters.tag())) return false;
     if (filters.favoritesOnly() && !preferences.favorites.contains(p.getUuid())) return false;

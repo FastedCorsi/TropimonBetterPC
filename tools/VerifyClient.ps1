@@ -1,6 +1,7 @@
 param(
     [ValidateSet('standalone', 'integrations')][string]$Mode = 'standalone',
     [string]$LauncherDirectory = $env:TROPIMON_HOME,
+    [string]$InstanceDirectory,
     [ValidateRange(960, 3840)][int]$Width = 1400,
     [ValidateRange(600, 2160)][int]$Height = 900,
     [ValidateSet('fr_fr', 'en_us')][string]$Language = 'fr_fr'
@@ -9,6 +10,32 @@ $ErrorActionPreference = 'Stop'
 $project = (Resolve-Path (Join-Path $PSScriptRoot '..')).Path
 if (!$LauncherDirectory) { $LauncherDirectory = Join-Path $env:APPDATA '.tropimon' }
 $launcher = $LauncherDirectory
+if (!$InstanceDirectory) {
+    $profiles = Join-Path $launcher 'profiles'
+    if (Test-Path -LiteralPath $profiles -PathType Container) {
+        $instances = @(Get-ChildItem -LiteralPath $profiles -Directory | ForEach-Object {
+            $candidate = Join-Path $_.FullName 'instance'
+            if (Test-Path -LiteralPath (Join-Path $candidate 'mods') -PathType Container) { $candidate }
+        })
+        if ($instances.Count -ne 1) { throw 'Profil ambigu : fournir -InstanceDirectory.' }
+        $InstanceDirectory = $instances[0]
+    } else { $InstanceDirectory = $launcher }
+}
+Add-Type -AssemblyName System.IO.Compression.FileSystem
+$dependencies = @{}
+foreach ($jar in (Get-ChildItem -LiteralPath (Join-Path $InstanceDirectory 'mods') -Filter '*.jar' -File)) {
+    $archive = [IO.Compression.ZipFile]::OpenRead($jar.FullName)
+    try {
+        $entry = $archive.GetEntry('fabric.mod.json')
+        if (!$entry) { continue }
+        $reader = [IO.StreamReader]::new($entry.Open())
+        try { $metadata = $reader.ReadToEnd() | ConvertFrom-Json } finally { $reader.Dispose() }
+        if ($metadata.id -in @('cobblemon', 'fabric-api', 'fabric-language-kotlin')) {
+            if ($dependencies.ContainsKey($metadata.id)) { throw 'Dépendance active en double.' }
+            $dependencies[$metadata.id] = $jar.FullName
+        }
+    } finally { $archive.Dispose() }
+}
 $run = Join-Path $project "build/verify-$Mode"
 if (Get-CimInstance Win32_Process -Filter "Name='java.exe' OR Name='javaw.exe'" |
         Where-Object { $_.CommandLine -and $_.CommandLine.Contains($run) }) {
@@ -23,17 +50,18 @@ Get-ChildItem -LiteralPath $mods -Filter 'tropimon-better-pc-*.jar' -File |
     ForEach-Object { Remove-Item -LiteralPath $_.FullName }
 Copy-Item -LiteralPath $artifact -Destination $mods
 Copy-Item -LiteralPath (Join-Path $project "build/smoke-helper/tropimon-better-pc-$modVersion-smoke.jar") -Destination $mods
-$activeCobblemon = @(Get-ChildItem (Join-Path $launcher 'mods') -Filter 'Cobblemon-fabric-*.jar' -File)
-if ($activeCobblemon.Count -ne 1) {
-    throw "La vérification exige exactement un JAR Cobblemon actif dans l'instance."
-}
-Get-ChildItem -LiteralPath $mods -Filter 'Cobblemon-fabric-*.jar' -File |
+Get-ChildItem -LiteralPath $mods -File | Where-Object {
+    $_.Name -like 'Cobblemon-fabric-*.jar' -or $_.Name -like 'fabric-api-*.jar' -or $_.Name -like 'fabric-language-kotlin-*.jar'
+} |
     ForEach-Object { Remove-Item -LiteralPath $_.FullName }
-Copy-Item -LiteralPath $activeCobblemon[0].FullName -Destination $mods
-$patterns = @('fabric-api-0.116.6+1.21.1.jar', 'fabric-language-kotlin-*.jar')
-if ($Mode -eq 'integrations') { $patterns += @('TropimonTeamBuilder-*.jar', 'TropimonCatchPreview-*.jar') }
+foreach ($id in @('cobblemon', 'fabric-api', 'fabric-language-kotlin')) {
+    if (!$dependencies.ContainsKey($id)) { throw "Dépendance active absente : $id" }
+    Copy-Item -LiteralPath $dependencies[$id] -Destination (Join-Path $mods ($id + '-active.jar'))
+}
+$patterns = @()
+if ($Mode -eq 'integrations') { $patterns = @('TropimonTeamBuilder-*.jar', 'TropimonCatchPreview-*.jar') }
 foreach ($pattern in $patterns) {
-    Get-ChildItem (Join-Path $launcher 'mods') -Filter $pattern |
+    Get-ChildItem (Join-Path $InstanceDirectory 'mods') -Filter $pattern |
         Where-Object { $_.Name -notlike '*BetterPC*' } |
         ForEach-Object { Copy-Item -LiteralPath $_.FullName -Destination $mods }
 }
