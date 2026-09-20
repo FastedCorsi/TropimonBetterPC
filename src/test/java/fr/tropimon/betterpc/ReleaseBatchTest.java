@@ -6,6 +6,32 @@ import java.util.*;
 import org.junit.jupiter.api.Test;
 
 class ReleaseBatchTest {
+  @Test
+  void progressCountsOnlyAcknowledgementsAndKeepsItsTotalAfterTimeout() {
+    var batch = new ReleaseBatch();
+    var first = target(0);
+    var second = target(1);
+    batch.start(List.of(first, second, first));
+    assertEquals(2, batch.total());
+    assertEquals(0, batch.completed());
+    batch.tick(1000, true, t -> true, id -> false, t -> {});
+    assertEquals(0, batch.completed());
+    batch.tick(1100, true, t -> true, id -> id.equals(first.id()), t -> fail());
+    assertEquals(1, batch.completed());
+    assertEquals(2, batch.total());
+    batch.tick(1300, true, t -> true, id -> false, t -> {});
+    batch.tick(6300, true, t -> true, id -> false, t -> fail());
+    assertEquals(ReleaseBatch.Result.TIMEOUT, batch.result());
+    assertFalse(batch.running());
+    assertEquals(1, batch.completed());
+    assertEquals(2, batch.total());
+    batch.start(List.of(first));
+    assertEquals(1, batch.total());
+    assertEquals(0, batch.completed());
+    batch.cancel();
+    assertEquals(1, batch.total());
+  }
+
   private ReleaseBatch.Target target(int slot) {
     return new ReleaseBatch.Target(UUID.randomUUID(), 0, slot, "safe", "Fixture");
   }

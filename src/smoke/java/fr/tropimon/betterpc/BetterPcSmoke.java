@@ -38,6 +38,7 @@ public final class BetterPcSmoke implements ClientModInitializer {
   private PcSession session;
   private boolean integrationChecked;
   private boolean collectionChecked;
+  private boolean releaseProgressCaptured;
 
   @Override
   public void onInitializeClient() {
@@ -571,6 +572,8 @@ public final class BetterPcSmoke implements ClientModInitializer {
                                         .isEmpty())),
                     "bulk review excludes every protected Pokemon");
                 click(650, 547);
+                check(session.batch.total() == targets.size(), "progress freezes reviewed total");
+                verifyReleaseCloseLock(client);
                 stage = 7;
                 tick = 0;
               }
@@ -708,7 +711,15 @@ public final class BetterPcSmoke implements ClientModInitializer {
               }
 
               case 7 -> {
+                if (session.batch.running() && !releaseProgressCaptured) {
+                  screenshot(client, "release-progress.png");
+                  verifyReleaseCloseLock(client);
+                  check(session.batch.completed() < session.batch.total(),
+                      "progress waits for actual server confirmations");
+                  releaseProgressCaptured = true;
+                }
                 if (session.batch.running() && tick < 1000) return;
+                check(releaseProgressCaptured, "release progress rendered during the real batch");
                 check(
                     session.batch.result() == ReleaseBatch.Result.DONE,
                     "batch completed with real server updates");
@@ -729,6 +740,23 @@ public final class BetterPcSmoke implements ClientModInitializer {
               }
 
               case 22 -> {
+                // Exercise timeout unlocking without emitting a release packet.
+                var pending = new ReleaseBatch.Target(UUID.randomUUID(), 0, 0, "fixture", "Fixture");
+                session.batch.start(List.of(pending));
+                session.batch.tick(1000, true, t -> true, id -> false, t -> {});
+                verifyReleaseCloseLock(client);
+                session.batch.tick(6000, true, t -> true, id -> false, t -> {
+                  throw new AssertionError("Timeout must not send another request");
+                });
+                screen.keepLink = true;
+                ((net.minecraft.client.gui.screen.Screen) screen)
+                    .keyPressed(org.lwjgl.glfw.GLFW.GLFW_KEY_ESCAPE, 0, 0);
+                check(client.currentScreen == null
+                        && session.batch.result() == ReleaseBatch.Result.TIMEOUT,
+                    "Escape unlocks after timeout");
+                screen.keepLink = false;
+                screen.closed = false;
+                client.setScreen(screen);
                 if (PcTeamBuilder.available()) {
                   click(800, 30);
                   check(
@@ -744,10 +772,13 @@ public final class BetterPcSmoke implements ClientModInitializer {
                       client.currentScreen == null && !PcTeamBuilder.blocksMovement(),
                       "server close invalidates TeamBuilder return and movement guard");
                 } else {
+                  session.batch.start(List.of(pending));
                   ClosePCHandler.INSTANCE.handle(new ClosePCPacket(UUID.randomUUID()), client);
-                  check(client.currentScreen == screen, "unrelated close ignored");
+                  check(client.currentScreen == screen && session.batch.running(),
+                      "unrelated close ignored during release");
                   ClosePCHandler.INSTANCE.handle(new ClosePCPacket(screen.storeId()), client);
-                  check(client.currentScreen == null, "server close handled by replacement UI");
+                  check(client.currentScreen == null && !session.batch.running(),
+                      "server close bypasses the user lock and cancels remaining releases");
                 }
 
                 client.options.forwardKey.setPressed(true);
@@ -912,6 +943,21 @@ public final class BetterPcSmoke implements ClientModInitializer {
         "untagged filter finds all remaining Pokemon");
     click(80, 770);
     screen.prefs.setTags(List.of(first), PcPreferences.ALL_TAGS, true);
+  }
+
+  private void verifyReleaseCloseLock(MinecraftClient client) throws Exception {
+    check(session.batch.running(), "release batch is active before testing the close lock");
+    int completed = session.batch.completed(), total = session.batch.total();
+    var ui = (net.minecraft.client.gui.screen.Screen) screen;
+    ui.keyPressed(org.lwjgl.glfw.GLFW.GLFW_KEY_ESCAPE, 0, 0);
+    ui.keyPressed(client.options.inventoryKey.getDefaultKey().getCode(), 0, 0);
+    click(1088, 32);
+    click(960, 32);
+    PcTeamBuilder.open(screen);
+    ui.close();
+    check(client.currentScreen == screen && !screen.closed && session.batch.running()
+            && session.batch.completed() == completed && session.batch.total() == total,
+        "Escape, inventory, close button, native PC and direct close cannot interrupt releases");
   }
 
   private void verifyReleaseProtections() throws Exception {

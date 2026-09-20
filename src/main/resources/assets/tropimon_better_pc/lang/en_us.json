@@ -1,4 +1,9 @@
 {
+  "tropimon_better_pc.release_progress_title": "Releasing Pokémon",
+  "tropimon_better_pc.release_progress_count": " Pokémon released",
+  "tropimon_better_pc.release_progress_wait": "Waiting for server confirmations…",
+  "tropimon_better_pc.release_progress_locked": "Closing the PC is temporarily disabled.",
+  "tropimon_better_pc.release_remaining": " remaining.",
   "tropimon_better_pc.action_definitive_seuls_les_pokemon_listes_seront_relaches": "Permanent action: only the listed Pokémon will be released.",
   "tropimon_better_pc.ajouter_a_l_equipe": "Add to party",
   "tropimon_better_pc.annuler": "Cancel",
@@ -96,7 +101,6 @@
   "tropimon_better_pc.relachement_s_confirme_s": " release(s) confirmed.",
   "tropimon_better_pc.relacher": "RELEASE ",
   "tropimon_better_pc.relacher_la_selection": "Release selected…",
-  "tropimon_better_pc.restant_s_fermer_interrompt_la_suite": " remaining. Closing stops the queue.",
   "tropimon_better_pc.retirer_des_favoris": "Remove from favourites",
   "tropimon_better_pc.sans_objet": "No held item",
   "tropimon_better_pc.selection_multiple": "Multi-select",

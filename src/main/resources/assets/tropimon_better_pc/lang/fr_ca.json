@@ -1,4 +1,9 @@
 {
+  "tropimon_better_pc.release_progress_title": "Relâchement en cours",
+  "tropimon_better_pc.release_progress_count": " Pokémon relâchés",
+  "tropimon_better_pc.release_progress_wait": "En attente des confirmations du serveur…",
+  "tropimon_better_pc.release_progress_locked": "Fermeture du PC temporairement bloquée.",
+  "tropimon_better_pc.release_remaining": " restant(s).",
   "tropimon_better_pc.action_definitive_seuls_les_pokemon_listes_seront_relaches": "Action définitive : seuls les Pokémon listés seront relâchés.",
   "tropimon_better_pc.ajouter_a_l_equipe": "Ajouter à l'équipe",
   "tropimon_better_pc.annuler": "Annuler",
@@ -96,7 +101,6 @@
   "tropimon_better_pc.relachement_s_confirme_s": " relâchement(s) confirmé(s).",
   "tropimon_better_pc.relacher": "RELÂCHER ",
   "tropimon_better_pc.relacher_la_selection": "Relâcher la sélection…",
-  "tropimon_better_pc.restant_s_fermer_interrompt_la_suite": " restant(s). Fermer interrompt la suite.",
   "tropimon_better_pc.retirer_des_favoris": "Retirer des favoris",
   "tropimon_better_pc.sans_objet": "Sans objet",
   "tropimon_better_pc.selection_multiple": "Sélection multiple",

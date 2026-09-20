@@ -55,7 +55,7 @@ Les fichiers séparés `*-preferences.json` contiennent les UUID des favoris, le
 
 Les transferts et relâchements utilisent exclusivement les paquets officiels de Cobblemon. Le serveur conserve ses validations et ses éventuels refus. Better PC ne supprime aucun Pokémon localement pour simuler une réussite.
 
-La confirmation fige les UUID, emplacements et caractéristiques de la sélection. Une seule demande de relâchement part à la fois ; la suivante attend le retrait observé dans le stockage, puis une courte pause. Un changement de session, de cible ou une absence de confirmation pendant cinq secondes interrompt la série sans réessai automatique. Fermer le PC interrompt les demandes restantes ; une demande déjà envoyée peut encore aboutir.
+La confirmation fige les UUID, emplacements et caractéristiques de la sélection. Une seule demande de relâchement part à la fois ; la suivante attend le retrait observé dans le stockage, puis une courte pause. Un panneau affiche le nombre de relâchements confirmés sur le total, le pourcentage et une barre de progression. Pendant la série, Échap, la touche d’inventaire, la croix et les changements d’interface sont bloqués. Un changement de session, de cible ou une absence de confirmation pendant cinq secondes interrompt la série sans réessai automatique et rend les commandes disponibles. Une fermeture imposée par le serveur ou une déconnexion reste possible et annule les demandes restantes ; une demande déjà envoyée peut encore aboutir.
 
 Le rangement automatique ajouté en 0.5.0 est retiré. Les déplacements manuels, échanges et transferts avec l’équipe restent disponibles.
 

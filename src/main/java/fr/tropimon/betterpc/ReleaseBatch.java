@@ -21,6 +21,7 @@ public final class ReleaseBatch {
   private long sentAt;
   private long nextAt;
   private int completed;
+  private int total;
   private Result result = Result.IDLE;
 
   public void start(List<Target> confirmed) {
@@ -31,6 +32,7 @@ public final class ReleaseBatch {
     for (Target target : List.copyOf(confirmed)) if (ids.add(target.id())) queue.add(target);
     waiting = null;
     completed = 0;
+    total = queue.size();
     nextAt = 0;
     result = queue.isEmpty() ? Result.DONE : Result.RUNNING;
   }
@@ -87,6 +89,10 @@ public final class ReleaseBatch {
 
   public int completed() {
     return completed;
+  }
+
+  public int total() {
+    return total;
   }
 
   public int remaining() {

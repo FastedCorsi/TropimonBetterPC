@@ -129,6 +129,10 @@ final class PcView {
   }
 
   static void overlays(BetterPcScreen s, DrawContext c, TextRenderer f, int mx, int my) {
+    if (s.session.batch.running()) {
+      releaseProgress(s, c, f);
+      return;
+    }
     if (s.confirmation != null || s.savingPreset || s.tools.modal()) return;
     c.getMatrices().push();
     c.getMatrices().translate(0, 0, 2400);
@@ -249,7 +253,7 @@ final class PcView {
           + s.session.batch.completed()
           + PcLang.tr("confirme_s")
           + s.session.batch.remaining()
-          + PcLang.tr("restant_s_fermer_interrompt_la_suite");
+          + PcLang.tr("release_remaining");
     if (s.session.batch.result() == ReleaseBatch.Result.DONE)
       return s.session.batch.completed() + PcLang.tr("relachement_s_confirme_s");
     if (s.session.batch.result() == ReleaseBatch.Result.TIMEOUT
@@ -258,6 +262,30 @@ final class PcView {
               "relachement_interrompu_stockage_modifie_ou_confirmation_absente_verifiez_les")
           + PcLang.tr("pokemon_restants");
     return s.session.message;
+  }
+
+  private static void releaseProgress(BetterPcScreen s, DrawContext c, TextRenderer f) {
+    ReleaseBatch batch = s.session.batch;
+    int percent = batch.completed() * 100 / Math.max(1, batch.total());
+    c.getMatrices().push();
+    c.getMatrices().translate(0, 0, 2600);
+    c.fill(8, 8, W - 8, H - 8, 0x99091323);
+    PcTextures.panel(c, 330, 346, 460, 164);
+    PcText.centered(
+        c, f, PcLang.tr("release_progress_title") + ".".repeat(s.ticks / 6 % 4),
+        350, 364, 420, 0xFF81E9D1, true);
+    PcText.centered(
+        c, f, batch.completed() + " / " + batch.total() + PcLang.tr("release_progress_count")
+            + "   (" + percent + " %)",
+        350, 389, 420, 0xFFFFFFFF, false);
+    PcTextures.input(c, 350, 411, 420, 16);
+    int fill = 414 * batch.completed() / Math.max(1, batch.total());
+    if (fill > 0) c.fill(353, 414, 353 + fill, 424, 0xFF64D4B2);
+    PcText.centered(
+        c, f, PcLang.tr("release_progress_wait"), 350, 444, 420, 0xFFD2E5F0, false);
+    PcText.centered(
+        c, f, PcLang.tr("release_progress_locked"), 350, 469, 420, 0xFFB9C5CE, false);
+    c.getMatrices().pop();
   }
 
   private static void card(

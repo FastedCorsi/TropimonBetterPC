@@ -417,7 +417,8 @@ public class BetterPcScreen extends Screen {
       return;
     }
 
-    for (PcButton b : buttons) if (b.getMessage().getString().equals("X")) b.active = true;
+    for (PcButton b : buttons)
+      if (b.getMessage().getString().equals("X")) b.active = !session.batch.running();
     boolean available = !session.busy(), focused = session.at(focusedPlace) != null;
     deleteSearch.active = available && prefs.available && !prefs.presets.isEmpty();
     tagEditor.active = available && prefs.available && (!selected.isEmpty() || focused);
@@ -551,6 +552,9 @@ public class BetterPcScreen extends Screen {
     session.batch.start(confirmation);
     confirmation = null;
     selected.clear();
+    cancelMove();
+    movesPreview = null;
+    setFocused(null);
     updateButtons();
   }
 
@@ -567,12 +571,14 @@ public class BetterPcScreen extends Screen {
   }
 
   public void closeFromServer() {
+    session.batch.cancel();
     keepLink = true;
     close();
   }
 
   @Override
   public void close() {
+    if (session.batch.running() && session.valid()) return;
     session.batch.cancel();
     tools.close();
     client.setScreen(null);
@@ -631,6 +637,7 @@ public class BetterPcScreen extends Screen {
 
   @Override
   public boolean mouseClicked(double x, double y, int button) {
+    if (session.batch.running()) return true;
     int ux = mx(x), uy = my(y);
     updateButtons();
     if (abilitySearch != null) {
@@ -786,6 +793,7 @@ public class BetterPcScreen extends Screen {
 
   @Override
   public boolean mouseScrolled(double x, double y, double horizontal, double vertical) {
+    if (session.batch.running()) return true;
     if (abilitySearch != null) {
       abilitySearch.scroll(vertical);
       return true;
@@ -806,6 +814,7 @@ public class BetterPcScreen extends Screen {
 
   @Override
   public boolean keyPressed(int key, int scan, int mods) {
+    if (session.batch.running()) return true;
     if (abilitySearch != null) {
       abilitySearch.key(key, scan, mods);
       return true;
