@@ -2,7 +2,7 @@
 
 By FastedCorsi
 
-Mod Fabric **client uniquement**, version **0.9.10**, pour **Minecraft 1.21.1 / Cobblemon 1.7.2 ou ultérieur**. Indépendant des autres mods Tropimon. Fabric API et Fabric Language Kotlin sont nécessaires.
+Mod Fabric **client uniquement**, version **0.9.11**, pour **Minecraft 1.21.1 / Cobblemon 1.7.2 ou ultérieur**. Indépendant des autres mods Tropimon. Fabric API et Fabric Language Kotlin sont nécessaires.
 
 L'équipe se trouve au-dessus des cartes, dans des emplacements de 44 unités de haut avec des portraits agrandis. Le titre ne contient plus de barre oblique et la croix de fermeture, décalée vers la droite, devient rouge au survol. Tous les filtres, la recherche et les actions de collection sont alignés dans le panneau inférieur : recherche, période et recherches enregistrées ; Type / Talent / Shiny / Sexe / Objet sur une même ligne ; espèce, favoris, tags, tri et protections ; actions de sélection ; puis Réinitialiser les filtres / Supprimer une recherche / Effacer la sélection côte à côte. Le champ de période est centré au repos. Les instructions Ctrl/Maj/cœur sont retirées ; les raccourcis restent fonctionnels. La grille gagne une colonne et affiche quinze Pokémon par page. Le boîtier extérieur utilise la partie centrale de `cobblemon:textures/gui/pc/pc_base.png`, agrandie par sections : les coins inclinés et les rails supérieur et inférieur conservent leurs proportions natives. Les panneaux utilisent le contour d’écran du PC, et les boutons et champs le bouton natif du PC. Les cartes et emplacements d’équipe conservent leur habillage Cobblemon coloré. Les textures et modèles sont référencés directement dans Cobblemon et respectent les packs de ressources actifs. Les ressources tierces restent la propriété de leurs auteurs et sous leurs licences.
 
@@ -59,14 +59,16 @@ La confirmation fige les UUID, emplacements et caractéristiques de la sélectio
 
 Le rangement automatique ajouté en 0.5.0 est retiré. Les déplacements manuels, échanges et transferts avec l’équipe restent disponibles.
 
+Chaque carte indique **Baron** ou **Non-Baron** (Alpha / Non-Alpha en anglais), selon le statut natif de Cobblemon. Une ligne dédiée conserve les tags lisibles sans agrandir la carte. Lorsque cette donnée n'est pas disponible, notamment sous Cobblemon 1.7.2, le statut est indiqué comme indisponible.
+
 ## Compilation et livraison
 
 `tools/Build.ps1` exécute la compilation, les tests et le contrôle de confidentialité. `-Smoke` lance les JAR de production dans un client de vérification avec un monde plat neuf et des Pokémon fictifs, sous `build/verify-standalone`. `tools/VerifyClient.ps1 -Mode integrations` reprend le scénario avec TeamBuilder et Catch Preview. Le code de ce test n'entre jamais dans le JAR public.
 
 `tools/Build.ps1 -Deliver` prépare deux copies de la même version :
 
-- `build/delivery/local/TropimonBetterPC-0.9.10+1.21.1-LOCAL.jar`, avec l'installateur externe.
-- `build/delivery/shareable/TropimonBetterPC-0.9.10+1.21.1.jar`, prêt à partager.
+- `build/delivery/local/TropimonBetterPC-0.9.11+1.21.1-LOCAL.jar`, avec l'installateur externe.
+- `build/delivery/shareable/TropimonBetterPC-0.9.11+1.21.1.jar`, prêt à partager.
 
 `tools/Build.ps1 -Deliver -Arm` arme l'installation locale différée avec une copie autonome de `InstallManagedLocalMod.ps1`. Le launcher peut rester ouvert. L'installateur détecte le profil, attend l'arrêt du jeu, vérifie le JAR, sauvegarde les anciennes copies hors des dossiers chargés, puis synchronise `mods-user`, `mods` et `user-mods-tracked.json` pour Better PC uniquement. Il refuse les doublons, retours de version et modifications concurrentes. Le résultat sur disque est écrit dans le fichier `.install.log` adjacent au JAR LOCAL. Un résultat `installed` ne constitue pas une validation en jeu. Ne jamais installer les deux livrables ensemble.
 

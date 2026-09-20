@@ -358,6 +358,8 @@ public final class BetterPcSmoke implements ClientModInitializer {
                 client.options.forwardKey.setPressed(false);
                 client.options.jumpKey.setPressed(false);
                 screenshot(client, "collection.png");
+                // Restore the ordinary fixture after capturing both card statuses together.
+                screen.all.getFirst().pokemon().setAlpha(false);
                 if (!collectionChecked) {
                   click(300, 692);
                   stage = 20;
@@ -661,6 +663,7 @@ public final class BetterPcSmoke implements ClientModInitializer {
                 screenshot(client, "species.png");
                 hover(client, 1088, 32);
                 click(80, 770);
+                screen.all.getFirst().pokemon().setAlpha(true);
                 collectionChecked = true;
                 stationary = client.player.getPos();
                 client.options.forwardKey.setPressed(true);

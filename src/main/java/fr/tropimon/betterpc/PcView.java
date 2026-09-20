@@ -338,12 +338,22 @@ final class PcView {
     PcTextures.button(c, x + 108, y + 59, 57, 17, true, hovered, false);
     PcText.button(c, f, PcLang.tr("att"), x + 108, y + 59, 57, 17, 0xFFE1F7FF);
     if (p.getShiny()) PcTextures.icon(c, PcTextures.SHINY, x + 45, y + 26, 12, 16);
+    int sizeCategory = PcSize.category(p);
+    clipped(
+        c,
+        f,
+        PcLang.tr(sizeCategory == PcSize.ALPHA ? "card_alpha"
+            : sizeCategory < 0 ? "card_alpha_unknown" : "card_not_alpha"),
+        x + 8,
+        y + 78,
+        186,
+        sizeCategory == PcSize.ALPHA ? 0xFFFF9292 : 0xFFB9C5CE);
     clipped(
         c,
         f,
         PcLang.tr("talent") + PcPokemon.ability(p),
         x + 8,
-        y + 78,
+        y + 90,
         186,
         PcPokemon.abilityColor(p));
     clipped(
@@ -351,16 +361,16 @@ final class PcView {
         f,
         PcLang.tr("nature") + PcPokemon.natureLabel(p),
         x + 8,
-        y + 94,
+        y + 102,
         186,
         p.getMintedNature() == null ? 0xFFE5ECFF : 0xFFB9F7AA);
-    stats(c, f, p, x + 8, y + 109);
+    stats(c, f, p, x + 8, y + 114);
   }
 
   private static void stats(DrawContext c, TextRenderer f, Pokemon p, int x, int y) {
     String[] labels = labels();
-    emphasis(c, f, PcLang.tr("iv"), x, y + 14, 25, 0xFFE6EDFF, 1);
-    emphasis(c, f, PcLang.tr("ev"), x, y + 28, 25, 0xFF81E1FF, 1);
+    emphasis(c, f, PcLang.tr("iv"), x, y + 12, 25, 0xFFE6EDFF, 1);
+    emphasis(c, f, PcLang.tr("ev"), x, y + 24, 25, 0xFF81E1FF, 1);
     for (int i = 0; i < 6; i++) {
       int center = x + 34 + i * 27;
       int effect = PcPokemon.natureEffect(p, i);
@@ -376,13 +386,13 @@ final class PcView {
       if (effect != 0) natureArrow(c, center + 5, y + 2, effect);
       int iv = PcPokemon.stat(p, i, false), ev = PcPokemon.stat(p, i, true);
       PcText.centered(
-          c, f, Integer.toString(iv), center - 13, y + 14, 26, PcPokemon.ivColor(iv), true);
+          c, f, Integer.toString(iv), center - 13, y + 12, 26, PcPokemon.ivColor(iv), true);
       PcText.centered(
           c,
           f,
           Integer.toString(ev),
           center - 13,
-          y + 28,
+          y + 24,
           26,
           ev == 252 ? 0xFF81E1FF : ev == 0 ? 0xFFBCC5D3 : 0xFFEBF4FF,
           true);
