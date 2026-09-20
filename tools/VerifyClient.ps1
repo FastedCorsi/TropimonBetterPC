@@ -4,7 +4,8 @@ param(
     [string]$InstanceDirectory,
     [ValidateRange(960, 3840)][int]$Width = 1400,
     [ValidateRange(600, 2160)][int]$Height = 900,
-    [ValidateSet('fr_fr', 'en_us')][string]$Language = 'fr_fr'
+    [ValidateSet('fr_fr', 'en_us')][string]$Language = 'fr_fr',
+    [ValidateRange(1, 4)][int]$GuiScale = 2
 )
 $ErrorActionPreference = 'Stop'
 $project = (Resolve-Path (Join-Path $PSScriptRoot '..')).Path
@@ -36,7 +37,7 @@ foreach ($jar in (Get-ChildItem -LiteralPath (Join-Path $InstanceDirectory 'mods
         }
     } finally { $archive.Dispose() }
 }
-$run = Join-Path $project "build/verify-$Mode"
+$run = Join-Path $project "build/verify-$Mode-gui$GuiScale-$Width-$Height"
 if (Get-CimInstance Win32_Process -Filter "Name='java.exe' OR Name='javaw.exe'" |
         Where-Object { $_.CommandLine -and $_.CommandLine.Contains($run) }) {
     throw 'Close this isolated test instance before replacing its test JAR.'
@@ -94,7 +95,7 @@ if ($Mode -eq 'updater') {
     New-Item -ItemType Directory -Force -Path $configDirectory | Out-Null
     [IO.File]::WriteAllText((Join-Path $configDirectory 'tropimon_better_pc-updater.json'), '{"enabled":true}', [Text.UTF8Encoding]::new($false))
 }
-$arguments = @('-Xmx3G', $smokeFlag, "-Dbetterpc.smoke.language=$Language", '-Dfabric.log.disableAnsi=true',
+$arguments = @('-Xmx3G', $smokeFlag, "-Dbetterpc.smoke.language=$Language", "-Dbetterpc.smoke.guiScale=$GuiScale", '-Dfabric.log.disableAnsi=true',
     "-Djava.library.path=$(Join-Path $launcher 'natives')",
     '-cp', ($classpath -join ';'), $loader.mainClass,
     '--username', 'BetterPcTest', '--uuid', '00000000000000000000000000000001',

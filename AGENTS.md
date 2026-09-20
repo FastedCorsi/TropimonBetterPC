@@ -1,5 +1,11 @@
 # Confidentialité permanente des mods Tropimon
 
+## Lisibilité aux quatre échelles GUI
+
+- Gérer les échelles Minecraft 1, 2, 3 et 4 sans modifier le réglage global du joueur. Vérifier aussi la fenêtre réduite et le redimensionnement ; distinguer l'échelle demandée de l'échelle réellement appliquée par Minecraft.
+- Garder les textes, valeurs, contrôles et infobulles lisibles. Ne pas réduire arbitrairement la police pour faire rentrer une longue chaîne ; préférer une disposition adaptée, le défilement ou une ellipse avec accès au détail complet.
+- Rendu, clics, survol, glisser-déposer et zones de découpe doivent employer la même transformation. Tester les actions et protections existantes à chaque échelle, pas seulement une capture à l'échelle 2.
+
 Cette règle demandée par l'utilisateur s'applique à toute création, correction, optimisation, compilation et livraison des mods Tropimon de ce dépôt, y compris leurs futurs modules.
 
 ## Attribution et données du développeur

@@ -56,7 +56,8 @@ public final class BetterPcSmoke implements ClientModInitializer {
                 stage = 0;
                 tick = 0;
                 client.options.getViewDistance().setValue(2);
-                client.options.getGuiScale().setValue(2);
+                client.options.getGuiScale().setValue(Integer.getInteger("betterpc.smoke.guiScale", 2));
+                client.onResolutionChanged();
                 client.options.pauseOnLostFocus = false;
                 client
                     .getTutorialManager()
@@ -85,6 +86,7 @@ public final class BetterPcSmoke implements ClientModInitializer {
               case 0 -> {
                 if (client.player == null
                     || CobblemonClient.INSTANCE.getStorage().getParty() == null) return;
+                if (!client.world.isChunkLoaded(client.player.getBlockPos())) return;
                 pcPos = client.player.getBlockPos().add(1, 0, 0);
                 UUID playerId = client.player.getUuid();
                 client
@@ -179,6 +181,8 @@ public final class BetterPcSmoke implements ClientModInitializer {
               }
 
               case 1 -> {
+                // A slow initial chunk upload must not look like a failed block placement.
+                if (!client.world.getBlockState(pcPos).isOf(CobblemonBlocks.PC)) return;
                 check(
                     client.world.getBlockState(pcPos).isOf(CobblemonBlocks.PC),
                     "physical PC exists");
@@ -194,6 +198,7 @@ public final class BetterPcSmoke implements ClientModInitializer {
               case 2 -> {
                 if (!(client.currentScreen instanceof BetterPcScreen current)) return;
                 screen = current;
+                verifyViewport(client);
                 client.getToastManager().clear();
                 session = (PcSession) field(screen, "session");
                 screen.loadFilters(PcPreferences.Filters.empty());
@@ -1356,6 +1361,24 @@ public final class BetterPcSmoke implements ClientModInitializer {
     var field = instance.getClass().getDeclaredField(name);
     field.setAccessible(true);
     return field.get(instance);
+  }
+
+  private void verifyViewport(MinecraftClient client) throws Exception {
+    var window = client.getWindow();
+    double scale = (float) field(screen, "scale");
+    double left = (double) field(screen, "offsetX"), top = (double) field(screen, "offsetY");
+    check(left >= 0 && top >= 0, "panel starts inside viewport");
+    check(left + BetterPcScreen.W * scale <= window.getScaledWidth()
+        && top + BetterPcScreen.H * scale <= window.getScaledHeight(), "panel fits viewport");
+    System.out.println("BETTER_PC_VIEWPORT: requested=" + client.options.getGuiScale().getValue()
+        + " effective=" + window.getScaleFactor() + " viewport=" + window.getScaledWidth()
+        + "x" + window.getScaledHeight() + " panelScale=" + scale);
+    for (var child : ((net.minecraft.client.gui.screen.Screen) screen).children()) {
+      if (!(child instanceof net.minecraft.client.gui.widget.ClickableWidget widget) || !widget.visible) continue;
+      check(widget.getX() >= 0 && widget.getY() >= 0
+          && widget.getX() + widget.getWidth() <= BetterPcScreen.W
+          && widget.getY() + widget.getHeight() <= BetterPcScreen.H, "visible control fits panel");
+    }
   }
 
   private static void screenshot(MinecraftClient client, String name) throws Exception {

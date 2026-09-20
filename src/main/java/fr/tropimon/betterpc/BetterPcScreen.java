@@ -152,7 +152,7 @@ public class BetterPcScreen extends Screen {
   @Override
   protected void init() {
     textRenderer = client.textRenderer;
-    scale = 0.82f * Math.min(1.5f, Math.min(width / (float) W, height / (float) H));
+    scale = Math.min(1.5f, Math.min((width - 16f) / W, (height - 16f) / H));
     offsetX = (width - W * scale) / 2;
     offsetY = (height - H * scale) / 2;
     buttons.clear();
@@ -604,11 +604,11 @@ public class BetterPcScreen extends Screen {
   public void renderBackground(DrawContext context, int mouseX, int mouseY, float delta) {}
 
   private int mx(double x) {
-    return (int) ((x - offsetX) / scale);
+    return (int) Math.floor((x - offsetX) / scale);
   }
 
   private int my(double y) {
-    return (int) ((y - offsetY) / scale);
+    return (int) Math.floor((y - offsetY) / scale);
   }
 
   int cardAt(int x, int y) {
