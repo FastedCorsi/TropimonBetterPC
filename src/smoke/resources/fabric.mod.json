@@ -5,6 +5,6 @@
   "authors": ["By FastedCorsi"],
   "environment": "client",
   "mixins": ["betterpc_smoke.mixins.json"],
-  "entrypoints": { "client": ["fr.tropimon.betterpc.BetterPcSmoke"] },
+  "entrypoints": { "client": ["fr.tropimon.betterpc.BetterPcSmoke", "fr.tropimon.betterpc.UpdaterConsentSmoke"] },
   "depends": { "tropimon_better_pc": "*" }
 }
